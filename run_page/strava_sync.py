@@ -10,7 +10,7 @@ def run_strava_sync(client_id, client_secret, refresh_token, only_run=True):
     generator = Generator(SQL_FILE)
     generator.set_strava_config(client_id, client_secret, refresh_token)
     # if you want to refresh data change False to True
-    generator.sync(true)
+    generator.sync(False)
 
     activities_list = generator.loadForMapping()
     with open(JSON_FILE, "w") as f:
