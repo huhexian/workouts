@@ -73,6 +73,17 @@ pnpm preview
 
 ### Strava 快速开始
 
+当前 fork 的 GitHub Actions 已配置为 `strava_web`，无需创建 Strava API 应用：
+
+1. 登录 Strava 网页，在浏览器开发者工具的 Application → Cookies → `https://www.strava.com` 中复制 `strava_remember_token`。
+2. 在仓库 Settings → Secrets and variables → Actions 中新增 Secret `STRAVA_JWT`，填入该 cookie 值。不要将其提交到仓库。
+3. 首次导入历史记录时，在同一位置新增 Variable `STRAVA_WEB_DAYS`，设成足以覆盖历史记录的天数（如 `3650`）；导入后改回 `7`，供每日增量同步。
+4. 在 Actions → Run Data Sync 中手动运行一次。会话过期后须更新 `STRAVA_JWT`。
+
+本仓库最初 fork 自 zhaohongxuan/workouts，原有 `run_page/data.db` 和 `src/static/activities.json` 是原作者的记录。配置自己的 Strava 前，应清空旧数据；首次同步成功后，Action 会写入你的数据。
+
+以下命令仅适用于拥有 Strava API 应用凭据的账号：
+
 ```bash
 # 全量同步
 python run_page/strava_sync.py CLIENT_ID CLIENT_SECRET REFRESH_TOKEN

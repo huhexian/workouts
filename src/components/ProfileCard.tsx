@@ -7,7 +7,7 @@ import { formatDistance, parseMovingTime, extractProvince } from '../hooks/useAc
 import rawConfig from '@config'
 
 const config = rawConfig as { repoOwner?: string; repoName?: string }
-const REPO_OWNER = config.repoOwner ?? 'zhaohongxuan'
+const REPO_OWNER = config.repoOwner ?? 'huhexian'
 const REPO_NAME  = config.repoName  ?? 'workouts'
 const WORKFLOW_FILE = 'run_data_sync.yml'
 

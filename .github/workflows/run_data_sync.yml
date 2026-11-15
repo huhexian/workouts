@@ -11,6 +11,7 @@ on:
       - run_page/nike_sync.py
       - run_page/nike_to_strava_sync.py
       - run_page/strava_sync_recent.py
+      - run_page/strava_web_sync.py
       - run_page/gen_svg.py
       - run_page/garmin_sync.py
       - run_page/keep_sync.py
@@ -22,8 +23,8 @@ on:
 env:
   # please change to your own config.
   RUN_TYPE: strava_web # support strava_web/strava/nike/garmin/garmin_cn/keep/only_gpx/only_fit/nike_to_strava/strava_to_garmin/strava_to_garmin_cn/garmin_to_strava/garmin_to_strava_cn/codoon, Please change the 'pass' it to your own
-  GITHUB_NAME: zhaohongxuan  # change to yours
-  GITHUB_EMAIL: hxzhenu@gmail.com # change to yours
+  GITHUB_NAME: github-actions[bot]
+  GITHUB_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
 
   # IGNORE_BEFORE_SAVING: True # if you want to ignore some data before saving, set this to True
   IGNORE_START_END_RANGE: 0 # Unit meter
@@ -102,8 +103,15 @@ jobs:
       # OAuth2 API, for when the API application is inactive. --days controls lookback.
       - name: Run sync Strava web script
         if: env.RUN_TYPE == 'strava_web'
+        env:
+          STRAVA_JWT: ${{ secrets.STRAVA_JWT }}
+          STRAVA_WEB_DAYS: ${{ vars.STRAVA_WEB_DAYS || '7' }}
         run: |
-          python run_page/strava_web_sync.py "${{ secrets.STRAVA_JWT }}" --days "${{ vars.STRAVA_WEB_DAYS || '7' }}"
+          if [ -z "$STRAVA_JWT" ]; then
+            echo "STRAVA_JWT secret is missing" >&2
+            exit 1
+          fi
+          python run_page/strava_web_sync.py "$STRAVA_JWT" --days "$STRAVA_WEB_DAYS"
 
       - name: Run sync Codoon script
         if: env.RUN_TYPE == 'codoon'
@@ -174,7 +182,7 @@ jobs:
           git config --local user.name "${{ env.GITHUB_NAME }}"
           git add .
           git commit -m 'Add new workouts' || echo "nothing to commit"
-          git push || echo "nothing to push"
+          git push
 
   publish_github_pages:
     if: needs.sync.result == 'success' && vars.BUILD_GH_PAGES != 'false'

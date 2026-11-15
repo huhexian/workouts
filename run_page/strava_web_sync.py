@@ -22,8 +22,9 @@ import os
 import sys
 import time
 import uuid
+from zoneinfo import ZoneInfo
 
-from config import JSON_FILE, SQL_FILE, start_point, run_map
+from config import BASE_TIMEZONE, JSON_FILE, SQL_FILE, start_point, run_map
 from generator.db import init_db, update_or_create_activity
 from stravaweblib import WebClient
 
@@ -125,7 +126,9 @@ def _fmt_local_date(ts):
     """Unix timestamp -> 'YYYY-MM-DD HH:MM:SS' (local tz)."""
     if not ts:
         return ""
-    dt = datetime.datetime.fromtimestamp(int(ts))
+    dt = datetime.datetime.fromtimestamp(int(ts), datetime.timezone.utc).astimezone(
+        ZoneInfo(BASE_TIMEZONE)
+    )
     return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
@@ -180,7 +183,7 @@ def run_strava_web_sync(jwt, days=7, only_run=False):
                 continue
             _sync_one(client, session, raw)
             total_fetched += 1
-        if page >= data.get("total", 1) // 20:
+        if page * 20 >= data.get("total", 0):
             break
         page += 1
         time.sleep(0.3)  # be gentle with rate limits
